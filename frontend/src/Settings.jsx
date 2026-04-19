@@ -22,15 +22,14 @@ export function Settings({ open, onClose }) {
 
   useEffect(() => {
     if (!open) return;
-    const apiKey = getApiKey();
-    const settings = getSettings();
-    setApiKeyState(apiKey);
-    setSuggestionsPrompt(settings.suggestionsPrompt);
-    setDetailPrompt(settings.detailPrompt);
-    setChatPrompt(settings.chatPrompt);
-    setSuggestionsChars(settings.suggestionsContextChars || "");
-    setDetailChars(settings.detailContextChars || "");
-    setChatChars(settings.chatContextChars || "");
+    setApiKeyState(getApiKey());
+    const s = getSettings();
+    setSuggestionsPrompt(s.suggestionsPrompt);
+    setDetailPrompt(s.detailPrompt);
+    setChatPrompt(s.chatPrompt);
+    setSuggestionsChars(s.suggestionsContextChars || "");
+    setDetailChars(s.detailContextChars || "");
+    setChatChars(s.chatContextChars || "");
     setSaved(false);
     setRevealKey(false);
   }, [open]);
