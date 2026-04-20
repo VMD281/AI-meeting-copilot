@@ -2,7 +2,8 @@
 
 A real-time meeting assistant that listens to live audio, transcribes it, and surfaces 3 context-aware suggestions every ~30 seconds. Click a suggestion for an expanded answer, or ask follow-up questions in chat. All powered by Groq (Whisper Large V3 for transcription, GPT-OSS 120B for everything else).
 
-**Live demo:** https://ai-meeting-copilot-peach.vercel.app/
+**Live demo:** https://ai-meeting-copilot-peach.vercel.app
+
 **Backend:** https://your-ai-meeting-copilot.onrender.com
 
 ## Quick start (local)
