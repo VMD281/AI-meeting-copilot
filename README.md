@@ -1,4 +1,4 @@
-# AI Live Suggestions Meeting Copilot
+# AI Meeting Copilot
 
 A real-time meeting assistant that listens to live audio, transcribes it, and surfaces 3 context-aware suggestions every ~30 seconds. Click a suggestion for an expanded answer, or ask follow-up questions in chat. All powered by Groq (Whisper Large V3 for transcription, GPT-OSS 120B for everything else).
 
