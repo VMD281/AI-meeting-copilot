@@ -2,8 +2,8 @@
 
 A real-time meeting assistant that listens to live audio, transcribes it, and surfaces 3 context-aware suggestions every ~30 seconds. Click a suggestion for an expanded answer, or ask follow-up questions in chat. All powered by Groq (Whisper Large V3 for transcription, GPT-OSS 120B for everything else).
 
-**Live demo:** _[paste deployed URL here after Vercel deploy]_
-**Backend:** _[paste Render URL here after Render deploy]_
+**Live demo:** https://ai-meeting-copilot-peach.vercel.app/
+**Backend:** https://your-ai-meeting-copilot.onrender.com
 
 ## Quick start (local)
 
@@ -52,12 +52,12 @@ Three columns, following the prototype.
 
 | Layer         | Choice                               | Why                                                                                                                                                                   |
 | ------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend      | React + Vite                         | Fast dev loop, minimal setup. No Next.js, this is a single-page app so SSR would add weight with no benefit.                                                          |
+| Frontend      | React + Vite                         | Fast dev loop, minimal setup.                                                                                                                                         |
 | Backend       | FastAPI                              | Native async, clean SSE streaming via `StreamingResponse`, ergonomic Pydantic validation.                                                                             |
 | Transcription | Whisper Large V3 on Groq             | Assignment spec. Using `verbose_json` with `segment` granularity for per-segment timestamps, which Groq docs confirm adds no extra latency.                           |
 | LLM           | GPT-OSS 120B on Groq                 | Assignment spec. JSON mode for suggestions (guarantees parseable output), streaming for chat.                                                                         |
 | State         | React hooks + `localStorage`         | No database, no session state on the backend. The frontend owns transcript, chat history, and settings. The backend is stateless and trivially horizontally scalable. |
-| Deploy        | Vercel (frontend) + Render (backend) | Both free. Render's free tier spins down after 15 min idle and cold-starts take ~30s, so warm it before a live demo.                                                  |
+| Deploy        | Vercel (frontend) + Render (backend) | Both free. Render's free tier spins down after 15 min idle and cold-starts take ~30s                                                                                  |
 
 ## Prompt strategy
 
@@ -65,7 +65,7 @@ The assignment explicitly grades prompt quality, so each of the three prompts do
 
 ### Suggestions prompt: context-aware category mixing
 
-The naive approach is "give me 3 suggestions, one of each type." That produces thin, generic output because it ignores the shape of the conversation. A fact-check card in a tutorial lecture is pointless. A talking-point in a rapid-fire Q&A is usually redundant.
+The naive approach is "give me 3 suggestions, one of each type." That produces thin, generic output because it ignores the shape of the conversation. A fact-check card in a tutorial lecture is pointless. A talking point in a rapid-fire Q&A is usually redundant.
 
 What I actually want: different suggestion mixes for different scenarios. If I'm being lectured at, I really only need good clarifying questions, maybe a fact-check if something sounds wrong. If I'm in a two-way conversation or a sales call, I need the full mix: a question to ask, something smart to say, an answer to a question someone just tossed at me. If I'm in a business review with numbers flying around, I want fact-checks on the numbers, drill-down questions, and comparable-case talking points.
 
@@ -131,13 +131,9 @@ JSON with four top-level keys. `session` has metadata (start time, export time, 
 
 **Word-level timestamps.** Whisper supports them but they add latency per Groq docs. Segment-level is accurate enough and costs nothing extra.
 
-**Streaming transcription UX.** Whisper is a batch model, there are no partial results while you talk. Dropping chunk size below 30s would feel more real-time but costs transcription quality (mid-word cuts) and 3 to 6 times the API calls. The spec explicitly says "roughly every 30 seconds" so 30s is the right call.
-
-**"Transcribing..." placeholder.** Would be nice polish during the 30-second wait but low value given the spec and the timeline.
+**Streaming transcription UX.** Whisper is a batch model, there are no partial results while you talk. Dropping chunk size below 30s would feel more real-time but costs transcription quality (mid-word cuts) and 3 to 6 times the API calls. The spec explicitly says "roughly every 30 seconds".
 
 **Conversation-type detection as a separate model call.** The prompt asks the model to identify the type and pick a category mix in one call. A two-call version (classify then generate) would be cleaner but doubles suggestion latency.
-
-**Tests.** None. For a feature-focused take-home with a 10-day timeline, structured manual testing via the export JSON was the higher-value bet.
 
 **Things I'd add next if I kept working on it:** prompt presets by meeting type (interview, sales call, standup), token/cost telemetry so users can tune context windows against price, inline transcript editing (Whisper is good but not perfect, bad transcription means bad suggestions), speaker diarization (who said what matters a lot for suggestion relevance but isn't available in Groq's Whisper currently), and persistent sessions with a "resume last session" button.
 
@@ -166,27 +162,4 @@ frontend/
 README.md
 ```
 
-## Deployment
 
-### Frontend on Vercel
-
-1. Push the repo to GitHub.
-2. Import the repo in [Vercel](https://vercel.com/new).
-3. Set root directory to `frontend/`.
-4. Add env var `VITE_API_BASE` with your deployed backend URL.
-5. Deploy.
-
-### Backend on Render
-
-1. In [Render](https://render.com), New > Web Service > connect the same repo.
-2. Root directory: `backend/`.
-3. Build command: `pip install -r requirements.txt`.
-4. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`.
-5. Add env var `ALLOWED_ORIGINS` with your Vercel frontend URL (no trailing slash).
-6. Deploy.
-
-Note on Render's free tier: the service spins down after 15 min of inactivity and cold-starts take about 30 seconds. Warm it with a request 1-2 minutes before a live demo.
-
-## License
-
-No license specified. Treat as all-rights-reserved.
